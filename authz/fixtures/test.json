@@ -1,0 +1,1 @@
+[{"pk": 1, "model": "authz.authorizer", "fields": {"name": "user"}}, {"pk": 1, "model": "authz.resource", "fields": {"authorizers": [1], "name": "resource1", "quantity": 2147483648}}]
