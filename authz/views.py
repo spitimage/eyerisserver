@@ -49,6 +49,11 @@ class RegisterView(View):
             log.info("Registering new Subject: %s" % subject)
             log.debug("Cert: %s" % cert)
 
+            a = Authorizer()
+            a.name = subject
+            a.cert = cert
+            a.save()
+
         except KeyError:
             return HttpResponseNotFound("Not Found")
 
