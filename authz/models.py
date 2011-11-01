@@ -2,8 +2,10 @@ from django.db import models
 
 class Authorizer(models.Model):
     name = models.CharField(max_length=128, unique=True)
+    cert = models.CharField(max_length=1024)
 
 class Resource(models.Model):
-    name = models.CharField(max_length=256, unique=True)
+    # Max length based on QR code study
+    name = models.CharField(max_length=213, unique=True)
     quantity = models.IntegerField(default=2147483648)
     authorizers = models.ManyToManyField(Authorizer)

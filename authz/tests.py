@@ -59,4 +59,19 @@ class AuthzTest(TestCase):
         with self.assertRaises(IntegrityError) as e:
             print "Testing for exception..."
             a.save()
-
+    def test_upload(self):
+        c = Client()
+        f = open('upload.txt')
+        params = {'subject':'bogus','file':f}
+        response = c.post('/upload/',params)
+        self.assertEqual(response.status_code, 200)
+    def test_post_register_new(self):
+        c = Client()
+        params = {'subject':'newUser','cert':'This is my cert data'}
+        response = c.post('/register/', params)
+        self.assertEqual(response.status_code, 200)
+    def test_post_register_duplicate(self):
+        c = Client()
+        params = {'subject':'user','cert':'This is my cert data'}
+        response = c.post('/register/', params)
+        self.assertEqual(response.status_code, 403)
