@@ -1,13 +1,8 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 from authz.views import AuthorizorView, CertUploadView, RegisterView
-from authz.models import *
-
-# Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
-admin.site.register(Authorizer)
-admin.site.register(Resource)
 
 
 urlpatterns = patterns('',
