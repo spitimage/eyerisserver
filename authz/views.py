@@ -1,6 +1,7 @@
 from django.forms.fields import FileField, CharField
 from django.forms.forms import Form
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from authz.models import Authorizer
 from models import Resource
@@ -10,6 +11,7 @@ log = logging.getLogger(__name__)
 
 class AuthorizorView(View):
 
+    @csrf_exempt
     def post(self, *args, **kwargs):
         try:
             subject = self.request.POST['subject']
@@ -35,6 +37,7 @@ class AuthorizorView(View):
 
 class RegisterView(View):
 
+    @csrf_exempt
     def post(self, *args, **kwargs):
         try:
             subject = self.request.POST['subject']
