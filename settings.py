@@ -94,8 +94,6 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
-# Note this middleware is needed for admin page, but your android
-# posting approach can't have them.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'eyerisserver.CustomMiddleware.FilterSessionMiddleware',
