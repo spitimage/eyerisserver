@@ -1,33 +1,46 @@
-from django.forms.fields import FileField, CharField
+from django.forms.fields import FileField
 from django.forms.forms import Form
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from authz.models import Authorizer
-from models import Resource
 import logging
+from M2Crypto.X509 import  load_cert_string
+import base64
 
 log = logging.getLogger(__name__)
 
 class AuthorizorView(View):
 
-    @csrf_exempt
     def post(self, *args, **kwargs):
         try:
-            subject = self.request.POST['subject']
-            content = self.request.POST['content']
-            nonce = self.request.POST['nonce']
-            signature = self.request.POST['signature']
+            subject = str(self.request.POST['subject'])
+            content = str(self.request.POST['content'])
+            nonce = str(self.request.POST['nonce'])
+            signature = str(self.request.POST['signature'])
 
-            log.info("Subject=%s" % subject)
-            log.info("Content=%s" % content)
-            log.info("nonce=%s" % nonce)
-            log.info("signature=%s" % signature)
+            log.debug("Subject=%s" % subject)
+            log.debug("Content=%s" % content)
+            log.debug("nonce=%s" % nonce)
+            log.debug("signature=%s" % signature)
 
             # This should only return one item since the name is unique
-            qs = Resource.objects.filter(name = content, authorizers__name = subject)
+            qs = Authorizer.objects.filter(name = subject, resource__name = content)
 
             if not qs.exists():
+                log.info("Unable to find authorizer %s for resource %s" % (subject, content))
+                return HttpResponseForbidden("Forbidden")
+
+            cert = str(qs[0].cert)
+
+            log.debug("Certificate: " + cert)
+
+            try:
+                result = self._verify(cert, content, nonce, signature)
+            except Exception, e:
+                log.error(e)
+                return HttpResponseForbidden("Forbidden")
+
+            if result != 1:
                 return HttpResponseForbidden("Forbidden")
 
         except KeyError:
@@ -35,13 +48,38 @@ class AuthorizorView(View):
 
         return HttpResponse('ok')
 
+    def _verify(self, cert, content, nonce, signature):
+
+        decodeSign = base64.b64decode(signature)
+
+        c = load_cert_string(cert)
+
+        log.debug("Successfully loaded cert")
+
+        k = c.get_pubkey()
+
+        k.verify_init() 
+
+        data = content+nonce
+
+        k.verify_update(data)
+
+        log.debug("Finished verify update")
+
+        result = k.verify_final(decodeSign)
+
+        log.debug("Finished verify final, result = %d" % result)
+
+        return result
+
+
+
 class RegisterView(View):
 
-    @csrf_exempt
     def post(self, *args, **kwargs):
         try:
-            subject = self.request.POST['subject']
-            cert = self.request.POST['cert']
+            subject = str(self.request.POST['subject'])
+            cert = str(self.request.POST['cert'])
 
             # Don't allow duplicate authorizers
             qs = Authorizer.objects.filter(name = subject)
