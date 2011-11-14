@@ -15,3 +15,12 @@ class Resource(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class LogRecord(models.Model):
+    who = models.ForeignKey(Authorizer)
+    when = models.DateTimeField(auto_now=True)
+    what = models.CharField(max_length=213)
+
+    def __unicode__(self):
+        return '%s->%s' % (self.who, self.what)

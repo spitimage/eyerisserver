@@ -1,13 +1,97 @@
 from django.forms.fields import FileField
 from django.forms.forms import Form
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
+from django.views.generic.list import ListView
 from authz.models import Authorizer
+from authz.models import LogRecord
 import logging
 from M2Crypto.X509 import  load_cert_string
 import base64
 
 log = logging.getLogger(__name__)
+
+class LogView(ListView):
+    context_object_name = "log_list"
+    template_name = "log.html"
+    def get_queryset(self):
+        user = get_object_or_404(Authorizer, name = self.args[0])
+        records = LogRecord.objects.filter(who=user)
+        return records
+    def get_context_data(self, **kwargs):
+        context = super(LogView, self).get_context_data(**kwargs)
+        context['subject'] = self.args[0]
+        return context
+
+class ScanView(View):
+
+    def post(self, *args, **kwargs):
+        try:
+            subject = str(self.request.POST['subject'])
+            content = str(self.request.POST['content'])
+            nonce = str(self.request.POST['nonce'])
+            signature = str(self.request.POST['signature'])
+
+            log.debug("Subject=%s" % subject)
+            log.debug("Content=%s" % content)
+            log.debug("nonce=%s" % nonce)
+            log.debug("signature=%s" % signature)
+
+            qs = Authorizer.objects.filter(name = subject)
+
+            if not qs.exists():
+                log.info("Unable to find authorizer %s for resource %s" % (subject, content))
+                return HttpResponseForbidden("Forbidden")
+
+            cert = str(qs[0].cert)
+
+            log.debug("Certificate: " + cert)
+
+            try:
+                result = self._verify(cert, content, nonce, signature)
+            except Exception, e:
+                log.error(e)
+                return HttpResponseForbidden("Forbidden")
+
+            if result != 1:
+                return HttpResponseForbidden("Forbidden")
+
+            record = LogRecord()
+            record.who = qs[0]
+            record.what = content
+            record.save()
+
+        except KeyError:
+            return HttpResponseNotFound("Not Found")
+
+        return HttpResponse('ok')
+
+    def _verify(self, cert, content, nonce, signature):
+
+        decodeSign = base64.b64decode(signature)
+
+        c = load_cert_string(cert)
+
+        log.debug("Successfully loaded cert")
+
+        k = c.get_pubkey()
+
+        k.verify_init()
+
+        data = content+nonce
+
+        k.verify_update(data)
+
+        log.debug("Finished verify update")
+
+        result = k.verify_final(decodeSign)
+
+        log.debug("Finished verify final, result = %d" % result)
+
+        return result
+
+
 
 class AuthorizorView(View):
 
