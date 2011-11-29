@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^authorize/$', AuthorizorView.as_view(), name='Authorize'),
     url(r'^upload/$', CertUploadView.as_view(), name='CertUpload'),
     url(r'^register/$', RegisterView.as_view(), name='Register'),
-    url(r'^log/(\w+@\w+\.\w+)/$', LogView.as_view(), name='Log'),
+    url(r'^log/(\w+)/$', LogView.as_view(), name='Log'),
     url(r'^scan/$', ScanView.as_view(), name='Scan'),
 )
 
