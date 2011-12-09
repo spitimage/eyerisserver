@@ -4,8 +4,7 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidde
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
 from django.views.generic.list import ListView
-from authz.models import Authorizer
-from authz.models import LogRecord
+from app.models import Authorizer, LogRecord
 import logging
 from M2Crypto.X509 import  load_cert_string
 import base64

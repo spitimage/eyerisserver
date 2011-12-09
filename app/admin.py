@@ -1,5 +1,5 @@
 from django.contrib import admin
-from authz.models import *
+from app.models import *
 
 admin.site.register(Authorizer)
 admin.site.register(Resource)

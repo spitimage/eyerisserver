@@ -1,40 +1,16 @@
-import os
+# Django settings for postgres1 project.
+
 DEBUG = True
-#DEBUG = False
-PRODUCTION = False
-DB_HOST = 'localhost'
-
-try:
-    os.environ['PRODUCTION']
-    PRODUCTION = True
-    DEBUG = False
-except KeyError:
-    pass
-
-try:
-    DB_HOST = os.environ['DB_HOST']
-except KeyError:
-    pass
-
-
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
- ('Aaron Nielsen', 'aaron.nielsen@blooco.com'),
+# ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'eyerisserver',                      # Or path to database file if using sqlite3.
-        'USER': 'django', # Not used with sqlite3.
-        'PASSWORD': 'password', # Not used with sqlite3.
-        'HOST': DB_HOST, # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '', # Set to empty string for default. Not used with sqlite3.
-    },
-    'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': '/home/user/tmp/eyerisserver.dat',                      # Or path to database file if using sqlite3.
         'USER': '', # Not used with sqlite3.
@@ -47,22 +23,13 @@ DATABASES = {
         'NAME': 'eyerisserver',                      # Or path to database file if using sqlite3.
         'USER': 'django', # Not used with sqlite3.
         'PASSWORD': 'password', # Not used with sqlite3.
-        'HOST': DB_HOST, # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '', # Set to empty string for default. Not used with sqlite3.
-    },
-    'postgis': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'eyerisserver',                      # Or path to database file if using sqlite3.
-        'USER': 'django', # Not used with sqlite3.
-        'PASSWORD': 'password', # Not used with sqlite3.
-        'HOST': DB_HOST, # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': 'combo', # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '', # Set to empty string for default. Not used with sqlite3.
     }
 }
 
 # The database routers allow custom routing to the above named databases
-if PRODUCTION:
-    DATABASE_ROUTERS = ['routers.PostgresRouter']
+DATABASE_ROUTERS = ['routers.PostgresRouter']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -71,7 +38,7 @@ if PRODUCTION:
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Denver'
+TIME_ZONE = 'America/Chicago'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -89,7 +56,7 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '/mnt/projects/eyerisserver/media/'
+MEDIA_ROOT = '/home/user/media/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -100,7 +67,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/mnt/projects/eyerisserver/static/'
+STATIC_ROOT = '/home/user/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -138,12 +105,10 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'eyerisserver.CustomMiddleware.FilterSessionMiddleware',
+    #    'django.middleware.csrf.CsrfViewMiddleware',
     'eyerisserver.CustomMiddleware.FilterAuthMiddleware',
-#    'django.contrib.messages.middleware.MessageMiddleware',
+    #    'django.contrib.messages.middleware.MessageMiddleware',
     )
 
 ROOT_URLCONF = 'eyerisserver.urls'
@@ -161,9 +126,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'django.contrib.gis',
-    'south',
-    'eyerisserver.app',
+    'eyerisserver.authz',
     )
 
 LOGGING = {
@@ -186,25 +149,25 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename' : '/mnt/projects/eyerisserver.log',
-            'maxBytes' : 1024 * 1024,
+            'filename' : '/tmp/django.log',
+            'maxBytes' : 1024,
             'backupCount' : 3
         }
     },
     'loggers': {
-        'app': {
+        'eyerisserver': {
             'handlers': ['console','file'],
             'propagate': True,
             'level': 'DEBUG',
             },
         'django.request': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
             },
         'django.db.backends': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': True,
             },
         }

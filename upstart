@@ -1,0 +1,5 @@
+start on runlevel [2345]
+stop on runlevel [06]
+respawn
+exec /mnt/projects/eyerisserver/releases/current/eyerisserver/gunicorn.sh
+

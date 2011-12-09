@@ -8,7 +8,7 @@ from django.db.utils import IntegrityError
 
 from django.test import TestCase
 from django.test.client import Client
-from authz.models import Authorizer
+from app.models import Authorizer
 from models import Resource
 
 class SimpleTest(TestCase):
