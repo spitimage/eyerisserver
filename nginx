@@ -1,6 +1,6 @@
 server {
     listen   80;
-    server_name eyerisserver.com;
+    server_name eyerishub.com;
 
 # Is this needed? This is passed to the proxy below
 #    root /mnt/projects/eyerisserver/releases/current/eyerisserver;
