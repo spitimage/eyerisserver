@@ -46,6 +46,12 @@ def mount_data():
     sudo('chmod g+w %(home)s' % env)
 
 def do_updates():
+    # Because M2Crypto is currently broken, install the fixed version sitewide (from debian guys)
+    # Here we are importing a new debian repo (adding the public key for it first)
+    sudo('gpg --keyserver pgpkeys.mit.edu --recv-key  AED4B06F473041FA')
+    sudo('gpg -a --export AED4B06F473041FA | sudo apt-key add -')
+    sudo('echo deb http://ftp.us.debian.org/debian sid main >> /etc/apt/sources.list')
+
     sudo('apt-get -y update')
     sudo('apt-get -y upgrade')
 
@@ -93,6 +99,9 @@ def install_web():
     sudo('apt-get -y install python-virtualenv')
     # swig is needed for M2Crypto
     sudo('apt-get -y install swig')
+
+    # Because M2Crypto is currently broken, install the fixed version sitewide (from debian guys)
+    sudo('apt-get -y install python-m2crypto=0.21.1-2')
 
     # Unzip is a handy thing to have
     sudo('apt-get -y install unzip')
