@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 set -e
+# Make sure we can log
+sudo chmod o+w /mnt/projects/eyerisserver.log
 PROJDIR=/mnt/projects/eyerisserver
 . ${PROJDIR}/env/bin/activate
 cd /mnt/projects/eyerisserver/releases/current/eyerisserver
@@ -22,3 +24,6 @@ unzip data/$well_shapefile -d data
 unzip data/$apermit_shapefile -d data
 
 python -c "import app.imports"
+
+# Remove all non-producing wells
+sudo -u postgres psql eyerisserver -c "delete from app_well where facility_s != 'PR';"

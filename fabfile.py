@@ -46,20 +46,14 @@ def mount_data():
     sudo('chmod g+w %(home)s' % env)
 
 def do_updates():
-    # Because M2Crypto is currently broken, install the fixed version sitewide (from debian guys)
-    # Here we are importing a new debian repo (adding the public key for it first)
-    sudo('gpg --keyserver pgpkeys.mit.edu --recv-key  AED4B06F473041FA')
-    sudo('gpg -a --export AED4B06F473041FA | sudo apt-key add -')
-    sudo('echo deb http://ftp.us.debian.org/debian sid main >> /etc/apt/sources.list')
-
     sudo('apt-get -y update')
-#    sudo('apt-get -y upgrade')
+    sudo('apt-get -y upgrade')
 
 def install_db():
     sudo('apt-get -y install postgresql-%(pg_ver)s' % env)
     sudo('apt-get -y install postgresql-contrib-%(pg_ver)s' % env)
-#    sudo('apt-get -y install postgresql-%(pg_ver)s-postgis' % env)
-#    sudo('apt-get -y install libgdal1-1.7.0')
+    sudo('apt-get -y install postgresql-%(pg_ver)s-postgis' % env)
+    sudo('apt-get -y install libgdal1-1.7.0')
 
     stop_db()
 
@@ -86,12 +80,12 @@ def create_db():
     change_db_password('django', 'password')
 
     # Create the PostGIS template database
-#    put('create_template_postgis-1.5.sh', '/tmp')
-#    with cd('/tmp'):
-#        pg('sh create_template_postgis-1.5.sh')
+    put('create_template_postgis-1.5.sh', '/tmp')
+    with cd('/tmp'):
+        pg('sh create_template_postgis-1.5.sh')
 
 def create_db_project():
-    pg('createdb -O django %(projname)s' % env)
+    pg('createdb -T template_postgis -O django %(projname)s' % env)
 
 
 def install_web():
@@ -100,8 +94,8 @@ def install_web():
     # swig is needed for M2Crypto
     sudo('apt-get -y install swig')
 
-    # Because M2Crypto is currently broken, install the fixed version sitewide (from debian guys)
-    sudo('apt-get -y install python-m2crypto=0.21.1-2')
+    # Pip install of PIL is also flubbed
+    sudo('apt-get -y install python-imaging')
 
     # Unzip is a handy thing to have
     sudo('apt-get -y install unzip')
@@ -174,6 +168,12 @@ def deploy_web_project():
 
     with cd('%(projpath)s/releases/current/%(projname)s' % env):
         run('chmod ug+x ./manage.py')
+        run('chmod ug+x ./jobs.sh')
+        # Remove the old jobs
+        with settings(warn_only=True):
+            run('crontab -r')
+        # Add the new jobs
+        run('crontab ./crontab')
 
 def upload_tar_from_git():
     require('release', provided_by=[deploy_web_project])
