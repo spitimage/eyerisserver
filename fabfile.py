@@ -53,13 +53,13 @@ def do_updates():
     sudo('echo deb http://ftp.us.debian.org/debian sid main >> /etc/apt/sources.list')
 
     sudo('apt-get -y update')
-    sudo('apt-get -y upgrade')
+#    sudo('apt-get -y upgrade')
 
 def install_db():
     sudo('apt-get -y install postgresql-%(pg_ver)s' % env)
     sudo('apt-get -y install postgresql-contrib-%(pg_ver)s' % env)
-    sudo('apt-get -y install postgresql-%(pg_ver)s-postgis' % env)
-    sudo('apt-get -y install libgdal1-1.7.0')
+#    sudo('apt-get -y install postgresql-%(pg_ver)s-postgis' % env)
+#    sudo('apt-get -y install libgdal1-1.7.0')
 
     stop_db()
 
@@ -86,12 +86,12 @@ def create_db():
     change_db_password('django', 'password')
 
     # Create the PostGIS template database
-    put('create_template_postgis-1.5.sh', '/tmp')
-    with cd('/tmp'):
-        pg('sh create_template_postgis-1.5.sh')
+#    put('create_template_postgis-1.5.sh', '/tmp')
+#    with cd('/tmp'):
+#        pg('sh create_template_postgis-1.5.sh')
 
 def create_db_project():
-    pg('createdb -T template_postgis -O django %(projname)s' % env)
+    pg('createdb -O django %(projname)s' % env)
 
 
 def install_web():
