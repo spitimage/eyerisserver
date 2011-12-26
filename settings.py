@@ -50,14 +50,6 @@ DATABASES = {
         'HOST': DB_HOST, # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '', # Set to empty string for default. Not used with sqlite3.
     },
-    'postgis': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'eyerisserver',                      # Or path to database file if using sqlite3.
-        'USER': 'django', # Not used with sqlite3.
-        'PASSWORD': 'password', # Not used with sqlite3.
-        'HOST': DB_HOST, # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '', # Set to empty string for default. Not used with sqlite3.
-    }
 }
 
 # The database routers allow custom routing to the above named databases
