@@ -1,5 +1,5 @@
-#db = 'postgresql'
-db = 'postgis'
+db = 'postgresql'
+#db = 'postgis'
 
 class PostgresRouter(object):
     """A router that sets up a simple master/slave configuration"""

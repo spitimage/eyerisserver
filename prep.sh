@@ -5,7 +5,7 @@ export PRODUCTION=TRUE
 cd /mnt/projects/eyerisserver/releases/current/eyerisserver
 # The --noinput versin of this still requires a eventual password prompt 
 # with a later call to createsuperuser
-./manage.py syncdb --database=postgis
+./manage.py syncdb
 ./manage.py collectstatic --noinput
 
 
