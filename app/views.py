@@ -1,13 +1,18 @@
+import Image
+from django.core.servers.basehttp import FileWrapper
 from django.forms.fields import FileField
 from django.forms.forms import Form
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.views.generic.base import View
 from django.views.generic.list import ListView
 from app.models import Authorizer, LogRecord
 import logging
 from M2Crypto.X509 import  load_cert_string
 import base64
+import uuid
+from app.pyQR import QRCode, QRErrorCorrectLevel
+import StringIO
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +27,49 @@ class LogView(ListView):
         context = super(LogView, self).get_context_data(**kwargs)
         context['subject'] = self.args[0]
         return context
+
+class QRGenView(View):
+    def get(self, *args, **kwargs):
+        try:
+            token = self.request.session['token']
+            qr = QRCode(4, QRErrorCorrectLevel.M)
+            qr.addData(token)
+            qr.make()
+            image = qr.makeImage()
+            image = image.resize((400,400), Image.ANTIALIAS)
+            f=StringIO.StringIO()
+            image.save(f,'png')
+            length = f.tell()
+            f.seek(0)
+            wrapper = FileWrapper(f)
+            response = HttpResponse(wrapper, mimetype='image/png')
+            response['Content-Length'] = length
+            response['Cache-Control'] = 'no-cache, no-store'
+            return response
+
+        except KeyError:
+            return HttpResponseForbidden("Forbidden")
+
+class LoginView(View):
+    def get(self, *args, **kwargs):
+        url = '/access/'
+        token = self._get_new_token()
+        self.request.session['token'] = token
+        return render_to_response('login.html', locals())
+    def _get_new_token(self):
+        token = uuid.uuid4()
+        return str(token)
+
+class AccessView(View):
+    def get(self, *args, **kwargs):
+        try:
+            token = self.request.session['token']
+            qs = LogRecord.objects.filter(what=token)
+            if not qs.exists():
+                return HttpResponseForbidden("Forbidden")
+        except KeyError:
+            return HttpResponseForbidden("Forbidden")
+        return render_to_response('access.html', locals())
 
 class ScanView(View):
 

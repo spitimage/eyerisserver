@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>Eyeris Login</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+    <style>
+        #container {
+            text-align: center
+        }
+        #login {
+            width: 100%;
+            margin: auto;
+        }
+
+    </style>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            setInterval(function() {
+                var url = {{ url }}
+
+                $.ajax({
+                           url : url,
+                           type : 'GET',
+                           success: function(json) {
+                               window.location.href = url;
+                           },
+                           error: function(xhr, textStatus, error) {
+                               // Silent failures
+                           }
+                       }
+
+                );
+            }, 2000);
+            });
+
+        function initialize() {
+        }
+
+    </script>
+</head>
+<body onload="initialize()">
+<div id="container">
+    <div id="'login">
+        <img src="/static/login.png"/>
+        <img src="/qr/"/>
+    </div>
+</div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
+from django.views.generic.base import TemplateView
 from app.views import *
 from django.contrib import admin
 admin.autodiscover()
@@ -14,6 +15,9 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
+    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^access/$', AccessView.as_view(), name='access'),
+    url(r'^qr/$', QRGenView.as_view(), name='qrgen'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^authorize/$', AuthorizorView.as_view(), name='Authorize'),
     url(r'^upload/$', CertUploadView.as_view(), name='CertUpload'),
@@ -22,13 +26,3 @@ urlpatterns = patterns('',
     url(r'^scan/$', ScanView.as_view(), name='Scan'),
 )
 
-# For local dev server only
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-            'document_root': settings.MEDIA_ROOT,
-        }),
-        url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {
-            'document_root': settings.STATIC_ROOT,
-        }),
-   )
